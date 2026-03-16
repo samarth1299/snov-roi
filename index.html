@@ -707,7 +707,7 @@ footer a:hover{color:var(--pu)}
     <div id="roiFlipCard" style="position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.35,0,.2,1);cursor:default">
 
       <!-- FRONT: the normal ROI hero -->
-      <div class="roi-hero" style="margin-bottom:0;backface-visibility:hidden;-webkit-backface-visibility:hidden">
+      <div class="roi-hero" onclick="flipRoiCard()" style="margin-bottom:0;backface-visibility:hidden;-webkit-backface-visibility:hidden">
         <div class="roi-hero-left">
           <div class="roi-hero-label">ROI</div>
           <div class="roi-hero-num" id="roiHlNum">—</div>
@@ -1408,23 +1408,21 @@ function updateRoiBlock(){
   const liCostS3=getEffectiveLiaCost();
   const planCost=baseCost+liCostS3;
 
-  // Revenue recalculated per billing period using closing cycle
-  // periodDays: how many days the billing period covers
   const cycle=R.cycle||14;
   const dv=R.dv||0;
   const billingMonths=billing==='annual'?12:billing==='quarterly'?3:1;
-  const periodDays=billingMonths*30;
-  // fraction of meetings that can close within this billing period
-  const periodFrac=Math.max(0,Math.min(1,(periodDays-cycle)/periodDays));
-  // recover raw (unadjusted) meetings from R — R.totalMeets already has cycle baked in
-  // R.closeableFraction is the monthly fraction used in calc()
-  const monthlyFrac=R.closeableFraction||1;
-  const rawMeets=monthlyFrac>0?R.totalMeets/monthlyFrac:R.totalMeets;
-  const winRate=rawMeets>0?(R.totalDeals/monthlyFrac)/rawMeets:0;
-  // deals closeable in the full billing period
-  const periodDeals=rawMeets*winRate*periodFrac;
-  const totalPeriodRev=periodDeals*dv;
+
+  // Correct model: each month runs independently.
+  // R.totalDeals is already monthly deals after the closing-cycle adjustment.
+  // Over N months you do N months of outreach, so N x monthly deals.
+  const monthlyDeals=R.totalDeals||0;
+  const monthlyRev=monthlyDeals*dv;
+  const periodDeals=monthlyDeals*billingMonths;
+  const totalPeriodRev=monthlyRev*billingMonths;
   const totalPeriodCost=planCost*billingMonths;
+
+  // closeableFraction for sub-label context only
+  const periodFrac=R.closeableFraction||1;
   const roi=totalPeriodCost>0?totalPeriodRev/totalPeriodCost:0;
   const net=Math.max(0,totalPeriodRev-totalPeriodCost);
 
@@ -1702,24 +1700,27 @@ function flipRoiCard(){
   document.getElementById('roiFlipCard').style.transform=roiCardFlipped?'rotateY(180deg)':'rotateY(0deg)';
 }
 
-// "snov" keyword listener
+// "snov" keyword: first press unlocks, every subsequent press toggles the flip
 (function(){
   let snovBuf='';
   document.addEventListener('keydown',e=>{
     if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
     snovBuf=(snovBuf+e.key).toLowerCase().slice(-4);
-    if(snovBuf==='snov' && !roiFlipUnlocked){
-      roiFlipUnlocked=true;
-      const card=document.getElementById('roiFlipCard');
-      card.style.cursor='pointer';
-      card.onclick=flipRoiCard;
-      const hint=document.getElementById('roiFlipHint');
-      if(hint) hint.style.display='block';
-      // subtle flash to signal unlock
-      card.style.transition='transform .7s cubic-bezier(.35,0,.2,1), box-shadow .3s';
-      card.style.boxShadow='0 0 0 2px rgba(155,130,238,0.5)';
-      setTimeout(()=>{ card.style.boxShadow=''; },800);
+    if(snovBuf==='snov'){
       snovBuf='';
+      if(!roiFlipUnlocked){
+        roiFlipUnlocked=true;
+        const scene=document.getElementById('roiFlipScene');
+        if(scene) scene.style.cursor='pointer';
+        const hint=document.getElementById('roiFlipHint');
+        if(hint) hint.style.display='block';
+        const card=document.getElementById('roiFlipCard');
+        if(card){
+          card.style.boxShadow='0 0 0 2px rgba(155,130,238,0.6)';
+          setTimeout(()=>{ card.style.boxShadow=''; },700);
+        }
+      }
+      flipRoiCard();
     }
   });
 })();
