@@ -364,6 +364,20 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.25);box-shadow:0
 .ai-insight-text.loading::after{content:'';display:inline-block;width:3px;height:13px;background:var(--pu);margin-left:4px;animation:cursor-blink .8s step-end infinite;vertical-align:middle}
 @keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}
 
+
+
+/* roi flip card */
+#roiFlipCard > div:first-child { min-height: 140px; }
+#roiFlipCard > div:last-child { min-height: 140px; }
+
+/* advanced ROI teaser */
+.adv-roi-wrap{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh)}
+.adv-roi-locked{cursor:pointer;padding:18px 20px;display:flex;align-items:center;gap:16px;transition:background .18s}
+.adv-roi-locked:hover{background:var(--s2)}
+.adv-roi-blur{flex:1;pointer-events:none;user-select:none}
+.adv-roi-nudge{flex:1;min-width:160px}
+.adv-roi-open{padding:18px 20px;border-top:1px solid var(--b1);animation:fadeUp .3s ease}
+
 footer{text-align:center;font-size:11px;color:var(--td);margin-top:48px;border-top:1px solid var(--b1);padding-top:20px;line-height:1.8}
 footer a{color:var(--tm);text-decoration:none}
 footer a:hover{color:var(--pu)}
@@ -402,77 +416,59 @@ footer a:hover{color:var(--pu)}
 <!-- ══════════════ STEP 1 ══════════════ -->
 <div class="screen active" id="step1">
   <div class="hero">
-    <div class="eyebrow"><div class="edot"></div>3-minute calculator</div>
+    <div class="eyebrow"><div class="edot"></div>2-minute calculator</div>
     <h1>How much could<br/><em>Snov.io make you?</em></h1>
-    <p class="hero-sub">Tell us about your outreach and team. We'll map out your pipeline, calculate possible revenue, and pick your ideal plan.</p>
+    <p class="hero-sub">Four numbers. We do the rest.</p>
   </div>
 
-  <!-- Q: team size -->
+  <!-- Team + Leads in one row -->
   <div class="card" style="margin-bottom:12px">
-    <div class="card-label" style="margin-bottom:14px">How large is your outreach team?</div>
-    <div style="display:flex;flex-wrap:wrap;gap:8px" id="teamPills">
+    <div class="card-label" style="margin-bottom:12px">Your outreach team</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px" id="teamPills">
       <button class="tpill on" data-v="1" onclick="setTeam(1)">Just me</button>
       <button class="tpill" data-v="2" onclick="setTeam(2)">2 people</button>
-      <button class="tpill" data-v="3" onclick="setTeam(3)">3–5 people</button>
-      <button class="tpill" data-v="7" onclick="setTeam(7)">6–10 people</button>
-      <button class="tpill" data-v="15" onclick="setTeam(15)">10+ people</button>
+      <button class="tpill" data-v="3" onclick="setTeam(3)">3–5</button>
+      <button class="tpill" data-v="7" onclick="setTeam(7)">6–10</button>
+      <button class="tpill" data-v="15" onclick="setTeam(15)">10+</button>
     </div>
+    <div style="border-top:1px solid var(--b0);padding-top:16px">
+      <div class="card-top" style="margin-bottom:4px">
+        <div class="card-label">Leads reached out to / month</div>
+        <div class="sl-val" id="lblLeads">300</div>
+      </div>
+      <input type="range" id="rLeads" min="10" max="10000" step="10" value="300" oninput="rSync('rLeads','iLeads','lblLeads',fN);updateTrack(this);syncNewLeads();calcJourney()"/>
+      <input type="number" id="iLeads" value="300" min="1" style="margin-top:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:800;background:transparent;border:none;outline:none;color:var(--tx);width:120px;-moz-appearance:textfield" oninput="sSync('iLeads','rLeads','lblLeads',fN)"/>
+      <span style="font-size:13px;color:var(--td)">leads/mo</span>
+    </div>
+    <!-- new leads vs existing — compact -->
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="font-size:12px;color:var(--tm)">of which</div>
+      <input class="iinp" type="number" id="iNewLeads" value="300" min="0" style="width:80px;font-size:14px" oninput="syncNewLeads()"/>
+      <div style="font-size:12px;color:var(--tm)">are <strong style="color:var(--pu)">new</strong> (use credits), rest from existing list</div>
+    </div>
+    <div style="font-size:11px;color:var(--td);margin-top:5px" id="newLeadsNote">All 300 are new — 300 credits/mo</div>
   </div>
 
-  <!-- Q: leads -->
+  <!-- JOURNEY — compact, sliders embedded -->
   <div class="card" style="margin-bottom:12px">
-    <div class="card-top">
-      <div class="card-label">How many new leads do you find &amp; reach out to per month?</div>
-      <div class="card-tag">Volume</div>
-    </div>
-    <div class="bnum-row">
-      <input class="bnum-inp" type="number" id="iLeads" value="300" min="1" oninput="sSync('iLeads','rLeads','lblLeads',fN)"/>
-    </div>
-    <div class="sl-wrap">
-      <div class="sl-header"><div class="sl-hint">leads / month</div><div class="sl-val" id="lblLeads">300</div></div>
-      <input type="range" id="rLeads" min="10" max="10000" step="10" value="300" oninput="rSync('rLeads','iLeads','lblLeads',fN);updateTrack(this);calcJourney()"/>
-    </div>
-    <!-- Q: emails per lead + mailbox limit -->
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--b0)">
-      <div class="card-top" style="margin-bottom:10px">
-        <div class="card-label" style="font-size:13px">Avg emails per lead per month (full sequence)</div>
-        <div class="sl-val"><span id="lblSeq">4</span></div>
-      </div>
-      <input type="range" id="rSeq" min="1" max="12" step="1" value="4" oninput="lbl('rSeq','lblSeq');updateTrack(this);calcJourney()"/>
-      <div class="mb-inline" id="mbInlineBlock" style="margin-top:12px">
-        <div class="mb-inline-txt">Total emails / month: <strong id="totalMail">1,200</strong></div>
-        <div class="mb-inline-edit">
-          <label>Max emails/mailbox/day:</label>
-          <input class="iinp" type="number" id="iMbLimit" value="80" min="10" max="500" oninput="calcJourney();checkMbLimit()"/>
-        </div>
-      </div>
-      <div class="mb-over-warn" id="mbOverWarn"></div>
-    </div>
-  </div>
-
-  <!-- JOURNEY -->
-  <div style="margin:4px 0 12px">
-    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:16px">Your outreach journey</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:16px">Your outreach funnel</div>
     <div class="journey" id="journey">
       <div class="j-step">
         <div class="j-left"><div class="j-circle filled">✉</div><div class="j-line"></div></div>
         <div class="j-content">
           <div class="j-title">Leads reached</div>
           <div class="j-val" id="jv1">300</div>
-          <div class="j-sub">prospects contacted this month</div>
         </div>
       </div>
       <div class="j-step">
         <div class="j-left"><div class="j-circle" id="jc2">↩</div><div class="j-line"></div></div>
         <div class="j-content">
-          <div class="j-title">Replies expected</div>
+          <div class="j-title">Replies</div>
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
             <div class="j-val" id="jv2">3</div>
-            <div style="font-size:12px;color:var(--tm)"><span style="font-size:15px;color:var(--tm)">at </span><input type="number" class="rate-inp" id="jrate2" value="1" min="0.1" max="50" step="0.1" oninput="syncRateInp('jrate2','rReply')"/>% reply rate</div>
+            <div style="font-size:14px;color:var(--tm)">at <input type="number" class="rate-inp" id="jrate2" value="1" min="0.1" max="50" step="0.1" oninput="syncRateInp('jrate2','rReply')"/>% reply rate</div>
           </div>
-          <div class="sl-wrap" style="margin-top:8px">
-            <input type="range" id="rReply" min="0.1" max="50" step="0.1" value="1" oninput="syncRateSlider('rReply','jrate2');updateTrack(this);calcJourney()"/>
-          </div>
+          <input type="range" id="rReply" min="0.1" max="50" step="0.1" value="1" style="margin-top:8px" oninput="syncRateSlider('rReply','jrate2');updateTrack(this);calcJourney()"/>
         </div>
       </div>
       <div class="j-step">
@@ -480,12 +476,10 @@ footer a:hover{color:var(--pu)}
         <div class="j-content">
           <div class="j-title">Meetings booked</div>
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-            <div class="j-val" id="jv3">7</div>
-            <div style="font-size:15px;color:var(--tm)"><input type="number" class="rate-inp" id="jrate3" value="30" min="0.1" max="80" step="0.1" oninput="syncRateInp('jrate3','rMeet')"/>% of replies book a call</div>
+            <div class="j-val" id="jv3">0</div>
+            <div style="font-size:14px;color:var(--tm)"><input type="number" class="rate-inp" id="jrate3" value="30" min="0.1" max="80" step="0.1" oninput="syncRateInp('jrate3','rMeet')"/>% of replies</div>
           </div>
-          <div class="sl-wrap" style="margin-top:8px">
-            <input type="range" id="rMeet" min="0.1" max="80" step="0.1" value="30" oninput="syncRateSlider('rMeet','jrate3');updateTrack(this);syncLiMeet();calcJourney()"/>
-          </div>
+          <input type="range" id="rMeet" min="0.1" max="80" step="0.1" value="30" style="margin-top:8px" oninput="syncRateSlider('rMeet','jrate3');updateTrack(this);syncLiMeet();calcJourney()"/>
         </div>
       </div>
       <div class="j-step">
@@ -493,124 +487,117 @@ footer a:hover{color:var(--pu)}
         <div class="j-content">
           <div class="j-title">Deals won</div>
           <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-            <div class="j-val" id="jv4">1.4</div>
-            <div style="font-size:15px;color:var(--tm)"><input type="number" class="rate-inp" id="jrate4" value="20" min="0.1" max="80" step="0.1" oninput="syncRateInp('jrate4','rClose')"/>% of meetings close</div>
+            <div class="j-val" id="jv4">0</div>
+            <div style="font-size:14px;color:var(--tm)"><input type="number" class="rate-inp" id="jrate4" value="20" min="0.1" max="80" step="0.1" oninput="syncRateInp('jrate4','rClose')"/>% of meetings</div>
           </div>
-          <div class="sl-wrap" style="margin-top:8px">
-            <input type="range" id="rClose" min="0.1" max="80" step="0.1" value="20" oninput="syncRateSlider('rClose','jrate4');updateTrack(this);calcJourney()"/>
-          </div>
+          <input type="range" id="rClose" min="0.1" max="80" step="0.1" value="20" style="margin-top:8px" oninput="syncRateSlider('rClose','jrate4');updateTrack(this);calcJourney()"/>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- deal value + closing cycle -->
-  <div class="card" style="margin-bottom:12px">
-    <div class="card-top">
-      <div class="card-label">Average deal value</div>
-      <div class="card-tag">Revenue driver</div>
-    </div>
-    <div class="bnum-row">
-      <div class="bnum-pfx">$</div>
-      <input class="bnum-inp" type="number" id="iDeal" value="2000" min="1" oninput="sSync('iDeal','rDeal','lblDeal',v=>'$'+fN(v))"/>
-    </div>
-    <div class="sl-wrap">
-      <div class="sl-header"><div class="sl-hint">per closed deal</div><div class="sl-val" id="lblDeal">$2k</div></div>
-      <input type="range" id="rDeal" min="100" max="100000" step="100" value="2000" oninput="rSync('rDeal','iDeal','lblDeal',v=>'$'+fN(v));updateTrack(this)"/>
-    </div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--b0)">
-      <div class="card-top" style="margin-bottom:8px">
-        <div class="card-label" style="font-size:13px">Average sales closing cycle</div>
-        <div class="card-tag">Time-adjusted ROI</div>
+    <!-- emails per lead + mailbox — hidden in a compact row -->
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--b0);display:flex;gap:16px;flex-wrap:wrap;align-items:center">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--tm)">
+        Sequence length:
+        <input type="range" id="rSeq" min="1" max="12" step="1" value="4" style="width:80px" oninput="lbl('rSeq','lblSeq');updateTrack(this);calcJourney()"/>
+        <strong><span id="lblSeq">4</span> emails/lead</strong>
       </div>
-      <div class="card-hint" style="margin-bottom:10px">How many days from first meeting to signed deal? This adjusts how many deals can realistically close within a calendar month.</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <input type="range" id="rCycle" min="1" max="90" step="1" value="14" style="flex:1" oninput="lbl('rCycle','lblCycle');updateTrack(this);updateCycleNote()"/>
-        <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--pu);min-width:60px;text-align:right"><span id="lblCycle">14</span> days</div>
+      <div class="mb-inline" id="mbInlineBlock" style="margin-top:0;flex:1;min-width:200px">
+        <div class="mb-inline-txt">Total emails/mo: <strong id="totalMail">1,200</strong></div>
+        <div class="mb-inline-edit">
+          <label>Max/mailbox/day:</label>
+          <input class="iinp" type="number" id="iMbLimit" value="80" min="10" max="500" oninput="calcJourney();checkMbLimit()"/>
+        </div>
       </div>
-      <div style="font-size:11px;color:var(--td);margin-top:6px" id="cycleNote">With a 14-day cycle, meetings booked in the last 14 days of the month won't close until next month.</div>
+      <div class="mb-over-warn" id="mbOverWarn" style="width:100%"></div>
     </div>
   </div>
 
-  <!-- LinkedIn Addon Toggle -->
+  <!-- LinkedIn Addon — compact -->
   <div class="card" style="margin-bottom:12px">
-    <div class="li-toggle-row">
+    <div class="li-toggle-row" style="margin-bottom:0">
       <div>
-        <div class="li-toggle-label">Add LinkedIn Automation? <span class="li-badge">&#xf08c; $69/mo per slot</span></div>
-        <div class="li-toggle-sub">Reach prospects on LinkedIn in parallel — different channel, higher accept & meeting rates.</div>
+        <div class="li-toggle-label">Add LinkedIn Automation <span class="li-badge">$69/mo per slot</span></div>
+        <div class="li-toggle-sub">LI outreach on the same leads — boosts meeting rate.</div>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="liToggle" onchange="toggleLI()"/>
         <div class="toggle-track"></div>
       </label>
     </div>
-
     <div class="li-section" id="liSection">
-      <div class="card-top" style="margin-bottom:10px;margin-top:4px">
-        <div class="card-label" style="font-size:13px">LinkedIn slots (accounts)</div>
-        <div class="sl-val"><span id="lblLiSlots">1</span></div>
-      </div>
-      <input type="range" id="rLiSlots" min="1" max="20" step="1" value="1" oninput="lbl('rLiSlots','lblLiSlots');updateTrack(this);updateLiDailyDisplay(document.getElementById('rLiDaily').value);calcJourney()"/>
-      <div class="li-cost-note" id="liCostNote">1 slot × $69 = <strong>$69/mo</strong> added to plan cost</div>
-
-      <div style="margin-top:18px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:14px">Your LinkedIn journey</div>
-        <div class="journey">
-          <div class="j-step">
-            <div class="j-left"><div class="j-circle li filled" id="ljc1">in</div><div class="j-line" style="background:linear-gradient(to bottom,rgba(10,102,194,0.3),transparent)"></div></div>
-            <div class="j-content">
-              <div class="j-title">LI connection requests sent</div>
-              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <div class="j-val" id="ljv1" style="color:#0a66c2">—</div>
-                <div style="font-size:12px;color:var(--tm)" id="liDailyCalcWrap">~<strong id="liDailyCalc">30</strong>/day per slot × 22 days = <strong id="liMonthlyCalc" style="color:#0a66c2">660</strong> requests/slot</div>
-              </div>
-              <div class="sl-wrap" style="margin-top:8px">
-                <div class="sl-header"><div class="sl-hint">daily connections per slot (LinkedIn safe limit)</div><div class="sl-val" style="color:#0a66c2"><span id="lblLiDaily">30</span></div></div>
-                <input type="range" id="rLiDaily" min="5" max="40" step="1" value="30" oninput="updateLiDailyDisplay(this.value);updateTrack(this);calcJourney()"/>
-              </div>
-            </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--b0)">
+        <!-- Slots stepper -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:2px">LinkedIn slots</div>
+            <div style="font-size:11px;color:var(--tm)">Each slot = 1 LinkedIn account</div>
           </div>
-          <div class="j-step">
-            <div class="j-left"><div class="j-circle li" id="ljc2">✔</div><div class="j-line" style="background:linear-gradient(to bottom,rgba(10,102,194,0.3),transparent)"></div></div>
-            <div class="j-content">
-              <div class="j-title">Connections accepted</div>
-              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <div class="j-val" id="ljv2" style="color:#0a66c2">—</div>
-                <div style="font-size:15px;color:var(--tm)"><input type="number" class="rate-inp" id="ljrate2" value="30" min="1" max="80" step="1" style="color:#0a66c2;border-bottom-color:rgba(10,102,194,0.3)" oninput="syncRateInp('ljrate2','rLiAccept')"/>% accept rate</div>
-              </div>
-              <div class="sl-wrap" style="margin-top:8px">
-                <input type="range" id="rLiAccept" min="1" max="80" step="1" value="30" oninput="syncRateSlider('rLiAccept','ljrate2');updateTrack(this);calcJourney()"/>
-              </div>
-            </div>
-          </div>
-          <div class="j-step">
-            <div class="j-left"><div class="j-circle li" id="ljc3">📅</div><div class="j-line" style="background:linear-gradient(to bottom,rgba(10,102,194,0.3),transparent)"></div></div>
-            <div class="j-content">
-              <div class="j-title">Meetings from LinkedIn</div>
-              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <div class="j-val" id="ljv3" style="color:#0a66c2">—</div>
-                <div style="font-size:15px;color:var(--tm)"><input type="number" class="rate-inp" id="ljrate3" value="33" min="0.1" max="80" step="0.1" style="color:#0a66c2;border-bottom-color:rgba(10,102,194,0.3)" oninput="syncRateInp('ljrate3','rLiMeet')"/>% of accepted book a call</div>
-              </div>
-              <div class="sl-wrap" style="margin-top:8px">
-                <input type="range" id="rLiMeet" min="0.1" max="80" step="0.1" value="33" oninput="syncRateSlider('rLiMeet','ljrate3');updateTrack(this);calcJourney()"/>
-              </div>
-              <div style="font-size:11px;color:var(--td);margin-top:5px">Default: email meeting rate + 10%</div>
-            </div>
-          </div>
-          <div class="j-step">
-            <div class="j-left"><div class="j-circle li" id="ljc4">🏆</div></div>
-            <div class="j-content">
-              <div class="j-title">LI deals won</div>
-              <div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap">
-                <div class="j-val" id="ljv4" style="color:#0a66c2">—</div>
-                <div style="font-size:13px;color:var(--tm)">same win rate as email (<span id="ljWinRef">20</span>%)</div>
-              </div>
-            </div>
+          <div style="display:flex;align-items:center;gap:0;background:var(--s2);border:1px solid var(--b1);border-radius:9px;overflow:hidden">
+            <button class="slot-btn" onclick="changeS1LiSlots(-1)">−</button>
+            <div class="slot-count" id="s1LiSlots">1</div>
+            <button class="slot-btn" onclick="changeS1LiSlots(1)">+</button>
           </div>
         </div>
+        <div class="li-cost-note" id="liCostNote">1 slot × $69 = <strong>$69/mo</strong> added to plan cost</div>
+
+        <!-- LI lead count (number, not %) -->
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="font-size:12px;color:var(--tm);flex:1">
+            How many of your <strong id="liLeadsTotalRef">300</strong> leads also get LinkedIn outreach?
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="iinp" type="number" id="iLiLeads" value="180" min="0" style="width:80px;font-size:16px" oninput="syncLiLeadCount()"/>
+            <span style="font-size:12px;color:var(--td)" id="liLeadsPct">(60%)</span>
+          </div>
+        </div>
+
+        <!-- LI rates — compact, all editable -->
+        <div style="margin-top:14px;background:var(--s2);border-radius:10px;padding:12px 14px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:10px">LI conversion rates <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--td);font-size:10px">(editable)</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div style="text-align:center">
+              <div style="font-size:10px;color:var(--td);margin-bottom:4px">Accept rate</div>
+              <div><input type="number" class="rate-inp" id="ljrate_accept" value="30" min="1" max="80" step="1" style="font-size:20px;width:3.5ch;text-align:center" oninput="calcJourney()"/>%</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:10px;color:var(--td);margin-bottom:4px">Reply rate</div>
+              <div><input type="number" class="rate-inp" id="ljrate_reply" value="10" min="0.1" max="50" step="0.1" style="font-size:20px;width:3.5ch;text-align:center" oninput="calcJourney()"/>%</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:10px;color:var(--td);margin-bottom:4px">Meeting rate</div>
+              <div><input type="number" class="rate-inp" id="ljrate_meet" value="20" min="0.1" max="80" step="0.1" style="font-size:20px;width:3.5ch;text-align:center" oninput="calcJourney()"/>%</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--td);margin-top:8px;text-align:center" id="liProjection">—</div>
+        </div>
+
+        <!-- Hidden elements still needed by old JS references -->
+        <input type="range" id="rLiSlots" min="1" max="20" value="1" style="display:none" oninput="calcJourney()"/>
+        <input type="range" id="rLiPct" min="0" max="100" value="60" style="display:none" oninput="calcJourney()"/>
+        <input type="range" id="rLiMeet" min="0.1" max="80" step="0.1" value="20" style="display:none" oninput="calcJourney()"/>
+        <span id="lblLiPct" style="display:none">60</span>
+        <span id="lblLiSlots" style="display:none">1</span>
+        <div id="ljv1" style="display:none"></div>
+        <div id="ljv2" style="display:none"></div>
+        <div id="ljv3" style="display:none"></div>
+        <div id="ljv4" style="display:none"></div>
+        <div id="ljWinRef" style="display:none"></div>
+        <div id="ljc1" style="display:none"></div>
+        <div id="ljc2" style="display:none"></div>
+        <div id="ljc3" style="display:none"></div>
+        <div id="ljc4" style="display:none"></div>
+        <div id="liMeetBoostNote" style="display:none"></div>
       </div>
     </div>
   </div>
+
+  <!-- hidden deal/cycle inputs still used by calc() -->
+  <input type="range" id="rDeal" min="100" max="100000" step="100" value="2000" style="display:none"/>
+  <input type="number" id="iDeal" value="2000" style="display:none"/>
+  <input type="range" id="rCycle" min="1" max="90" step="1" value="14" style="display:none"/>
+  <span id="lblDeal" style="display:none">$2k</span>
+  <span id="lblCycle" style="display:none">14</span>
+  <div id="cycleNote" style="display:none"></div>
 
   <button class="btn-main" onclick="goReveal()">Show my possible revenue →</button>
 </div>
@@ -650,6 +637,59 @@ footer a:hover{color:var(--pu)}
     </div>
   </div>
 
+  <!-- Advanced ROI teaser -->
+  <div class="adv-roi-wrap" id="advRoiWrap">
+    <div class="adv-roi-locked" id="advRoiLocked" onclick="unlockAdvRoi()">
+      <div class="adv-roi-blur">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:12px;color:var(--tm)">Time-adjusted revenue</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--tx);filter:blur(5px)">$12,400</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="font-size:12px;color:var(--tm)">Cycle-adjusted ROI</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--pu);filter:blur(5px)">8.3×</span>
+        </div>
+      </div>
+      <div class="adv-roi-nudge">
+        <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:3px">✦ More accurate numbers available</div>
+        <div style="font-size:12px;color:var(--tm)">Add your deal value &amp; sales cycle — see how many deals actually close each month. Tap to unlock.</div>
+      </div>
+    </div>
+    <div class="adv-roi-open" id="advRoiOpen" style="display:none">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--pu);margin-bottom:14px">Advanced ROI inputs</div>
+      <!-- Deal value -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="font-size:13px;font-weight:600;color:var(--tx);min-width:120px">Average deal value</div>
+        <div style="display:flex;align-items:baseline;gap:4px;flex:1">
+          <div style="font-size:20px;font-weight:700;color:var(--td)">$</div>
+          <input class="bnum-inp" type="number" id="iDeal2" value="2000" min="1" style="font-size:28px;width:120px" oninput="syncDeal2()"/>
+        </div>
+        <input type="range" id="rDeal2" min="100" max="100000" step="100" value="2000" style="flex:2;min-width:120px" oninput="syncDeal2Range()"/>
+        <div style="font-size:13px;font-weight:700;color:var(--pu);min-width:48px;text-align:right" id="lblDeal2">$2k</div>
+      </div>
+      <!-- Closing cycle -->
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="font-size:13px;font-weight:600;color:var(--tx);min-width:120px">Sales closing cycle</div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1">
+          <input type="range" id="rCycle2" min="1" max="90" step="1" value="14" style="flex:1;min-width:120px" oninput="syncCycle2()"/>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--pu);min-width:56px;text-align:right"><span id="lblCycle2">14</span>d</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--td);margin-top:8px" id="cycleNote2"></div>
+      <!-- Live updated advanced stats -->
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b0);display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:130px;background:var(--s2);border-radius:10px;padding:12px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:6px">Adj. monthly revenue</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--tx)" id="advRevNum">—</div>
+        </div>
+        <div style="flex:1;min-width:130px;background:var(--pu-bg);border:1px solid var(--pu-border);border-radius:10px;padding:12px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--pu);margin-bottom:6px">Accurate ROI estimate</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--pu)" id="advRoiNum">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <button class="btn-main" onclick="goPlan()" style="margin-top:6px">See my plan &amp; ROI →</button>
   <div style="text-align:center;margin-top:12px"><button class="btn-ghost" onclick="goStep(1)">← Adjust numbers</button></div>
 </div>
@@ -662,31 +702,48 @@ footer a:hover{color:var(--pu)}
   </div>
   <div style="text-align:center"><div class="rec-badge">✦ Best match for your usage</div></div>
 
-  <!-- ROI FIRST -->
-  <div class="roi-hero">
-    <div class="roi-hero-left">
-      <div class="roi-hero-label">ROI</div>
-      <div class="roi-hero-num" id="roiHlNum">—</div>
-      <div class="roi-hero-sub">for every $1 spent</div>
-    </div>
-    <div class="roi-hero-right">
-      <div class="rb-rows">
-        <div class="rb-row">
-          <div class="rb-lbl">Possible rev.</div>
-          <div class="rb-track"><div class="rb-fill pu" id="rbRev" style="width:0%"></div></div>
-          <div class="rb-amt" id="rbRevAmt">—</div>
+  <!-- ROI FIRST — flip card (back visible only after typing "snov") -->
+  <div style="perspective:1200px;margin-bottom:14px" id="roiFlipScene">
+    <div id="roiFlipCard" style="position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.35,0,.2,1);cursor:default">
+
+      <!-- FRONT: the normal ROI hero -->
+      <div class="roi-hero" style="margin-bottom:0;backface-visibility:hidden;-webkit-backface-visibility:hidden">
+        <div class="roi-hero-left">
+          <div class="roi-hero-label">ROI</div>
+          <div class="roi-hero-num" id="roiHlNum">—</div>
+          <div id="roiHlSub" style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:5px">for every $1 spent</div>
+          <div id="roiDiscourage" style="display:none;margin-top:8px;font-size:11px;color:var(--am);line-height:1.5;max-width:200px"></div>
+          <!-- subtle hint only when snov mode active -->
+          <div id="roiFlipHint" style="display:none;margin-top:10px;font-size:10px;color:rgba(255,255,255,0.25);cursor:pointer" onclick="flipRoiCard()">↺ tap for breakdown</div>
         </div>
-        <div class="rb-row">
-          <div class="rb-lbl">Plan cost</div>
-          <div class="rb-track"><div class="rb-fill td" id="rbCost" style="width:0%"></div></div>
-          <div class="rb-amt" id="rbCostAmt">—</div>
-        </div>
-        <div class="rb-row">
-          <div class="rb-lbl">Net value</div>
-          <div class="rb-track"><div class="rb-fill gr" id="rbNet" style="width:0%"></div></div>
-          <div class="rb-amt" id="rbNetAmt">—</div>
+        <div class="roi-hero-right">
+          <div class="rb-rows">
+            <div class="rb-row">
+              <div class="rb-lbl">Possible rev.</div>
+              <div class="rb-track"><div class="rb-fill pu" id="rbRev" style="width:0%"></div></div>
+              <div class="rb-amt" id="rbRevAmt">—</div>
+            </div>
+            <div class="rb-row">
+              <div class="rb-lbl">Plan cost</div>
+              <div class="rb-track"><div class="rb-fill td" id="rbCost" style="width:0%"></div></div>
+              <div class="rb-amt" id="rbCostAmt">—</div>
+            </div>
+            <div class="rb-row">
+              <div class="rb-lbl">Net value</div>
+              <div class="rb-track"><div class="rb-fill gr" id="rbNet" style="width:0%"></div></div>
+              <div class="rb-amt" id="rbNetAmt">—</div>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- BACK: ROI breakdown explanation -->
+      <div onclick="flipRoiCard()" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);border-radius:18px;background:linear-gradient(150deg,#1A0E42,#2D1B6B);padding:22px 24px;box-shadow:0 8px 40px rgba(91,52,217,0.22);overflow:auto">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:16px">Why this ROI</div>
+        <div id="roiBreakdownContent" style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7"></div>
+        <div style="margin-top:16px;font-size:10px;color:rgba(255,255,255,0.2);cursor:pointer" onclick="flipRoiCard()">↺ flip back</div>
+      </div>
+
     </div>
   </div>
 
@@ -858,10 +915,106 @@ let discountActive=false, planDiscount=0, liaDiscount=0; // hidden discount over
 function fN(n){n=parseFloat(n)||0;if(n>=1e6)return (n/1e6).toFixed(1)+'M';if(n>=1000)return Math.round(n/1e3)+'k';return Math.round(n)+'';}
 function fm(n){if(n>=1e6)return '$'+(n/1e6).toFixed(1)+'M';if(n>=1000)return '$'+Math.round(n/1e3)+'k';return '$'+Math.round(n);}
 function lbl(rid,lid){document.getElementById(lid).textContent=document.getElementById(rid).value;calcJourney();}
-function sSync(nid,rid,lid,fmt){const v=document.getElementById(nid).value;document.getElementById(rid).value=v;document.getElementById(lid).textContent=fmt(v);updateTrack(document.getElementById(rid));calcJourney();}
+function sSync(nid,rid,lid,fmt){const v=document.getElementById(nid).value;document.getElementById(rid).value=v;document.getElementById(lid).textContent=fmt(v);updateTrack(document.getElementById(rid));if(nid==='iLeads'){const r=document.getElementById('liLeadsTotalRef');if(r)r.textContent=Math.round(parseFloat(v)||0).toLocaleString();}calcJourney();}
 function rSync(rid,nid,lid,fmt){const v=document.getElementById(rid).value;document.getElementById(nid).value=v;document.getElementById(lid).textContent=fmt(v);}
 function updateTrack(el){const mn=+el.min||0,mx=+el.max||100,v=+el.value||0,p=(v-mn)/(mx-mn)*100;el.style.background=`linear-gradient(to right,var(--pu) 0%,var(--pu) ${p}%,var(--s3) ${p}%,var(--s3) 100%)`;}
 function setTeam(v){teamSize=v;document.querySelectorAll('.tpill').forEach(p=>p.classList.toggle('on',+p.dataset.v===v));}
+
+// Step 1 LI slot stepper (separate from Step 3 stepper)
+let s1LiSlots=1;
+function changeS1LiSlots(d){
+  s1LiSlots=Math.max(1,Math.min(20,s1LiSlots+d));
+  document.getElementById('s1LiSlots').textContent=s1LiSlots;
+  document.getElementById('rLiSlots').value=s1LiSlots;
+  const cost=s1LiSlots*69;
+  document.getElementById('liCostNote').innerHTML=s1LiSlots+' slot'+(s1LiSlots>1?'s':'')+' × $69 = <strong>$'+cost+'/mo</strong> added to plan cost';
+  calcJourney();
+}
+
+// Sync LI lead count input (number of leads, not %)
+function syncLiLeadCount(){
+  const total=parseFloat(document.getElementById('iLeads').value)||0;
+  let n=parseFloat(document.getElementById('iLiLeads').value)||0;
+  n=Math.min(n,total);
+  const pct=total>0?Math.round(n/total*100):0;
+  document.getElementById('liLeadsPct').textContent='('+pct+'%)';
+  document.getElementById('rLiPct').value=pct;
+  document.getElementById('lblLiPct').textContent=pct;
+  const ref=document.getElementById('liLeadsTotalRef');
+  if(ref) ref.textContent=Math.round(total).toLocaleString();
+  calcJourney();
+}
+
+// Advanced ROI on Step 2
+let advRoiUnlocked=false;
+function unlockAdvRoi(){
+  advRoiUnlocked=true;
+  document.getElementById('advRoiLocked').style.display='none';
+  document.getElementById('advRoiOpen').style.display='block';
+  updateAdvRoi();
+}
+function syncDeal2(){
+  const v=document.getElementById('iDeal2').value;
+  document.getElementById('rDeal2').value=v;
+  document.getElementById('lblDeal2').textContent='$'+fN(v);
+  document.getElementById('iDeal').value=v;
+  document.getElementById('rDeal').value=v;
+  updateAdvRoi();
+}
+function syncDeal2Range(){
+  const v=document.getElementById('rDeal2').value;
+  document.getElementById('iDeal2').value=v;
+  document.getElementById('lblDeal2').textContent='$'+fN(v);
+  document.getElementById('iDeal').value=v;
+  document.getElementById('rDeal').value=v;
+  updateTrack(document.getElementById('rDeal2'));
+  updateAdvRoi();
+}
+function syncCycle2(){
+  const v=document.getElementById('rCycle2').value;
+  document.getElementById('lblCycle2').textContent=v;
+  document.getElementById('rCycle').value=v;
+  document.getElementById('lblCycle').textContent=v;
+  updateTrack(document.getElementById('rCycle2'));
+  updateCycleNote2();
+  updateAdvRoi();
+}
+function updateCycleNote2(){
+  const c=parseFloat(document.getElementById('rCycle2').value)||14;
+  const frac=Math.max(0,(30-c)/30);
+  const pct=Math.round(frac*100);
+  const el=document.getElementById('cycleNote2');
+  if(!el) return;
+  if(c<=7) el.textContent='Short cycle — most meetings close this month ('+pct+'% closeable).';
+  else if(c<=21) el.textContent='~'+pct+"% of this month's meetings close before month-end.";
+  else el.textContent='Only ~'+pct+'% close this month. ROI compounds over longer period.';
+}
+function updateAdvRoi(){
+  if(!advRoiUnlocked||!R.totalMeets) return;
+  const cycle=parseFloat(document.getElementById('rCycle2').value)||14;
+  const dv=parseFloat(document.getElementById('iDeal2').value)||2000;
+  const frac=Math.max(0,(30-cycle)/30);
+  const winRate=R.totalMeets>0?R.totalDeals/R.totalMeets:0;
+  const rawMeets=R.closeableFraction>0?R.totalMeets/R.closeableFraction:R.totalMeets;
+  const adjDeals=rawMeets*winRate*frac;
+  const adjRev=adjDeals*dv;
+  const planCost=R.planCost||1;
+  const roi=planCost>0?adjRev/planCost:0;
+  document.getElementById('advRevNum').textContent=fm(adjRev);
+  document.getElementById('advRoiNum').textContent=roi>=1?roi.toFixed(1)+'×':'<1×';
+}
+function syncNewLeads(){
+  const total=parseFloat(document.getElementById('iLeads').value)||0;
+  let newL=parseFloat(document.getElementById('iNewLeads').value)||0;
+  if(newL>total){ newL=total; document.getElementById('iNewLeads').value=total; }
+  const note=document.getElementById('newLeadsNote');
+  if(note){
+    if(newL===total) note.textContent='All '+Math.round(total).toLocaleString()+' leads are new — uses '+Math.round(newL).toLocaleString()+' credits/mo';
+    else if(newL===0) note.textContent='No new leads found — 0 credits used. All outreach to existing contacts.';
+    else note.textContent=Math.round(newL).toLocaleString()+' new (credits) + '+Math.round(total-newL).toLocaleString()+' existing contacts';
+  }
+  calcJourney();
+}
 function updateCycleNote(){
   const c=parseFloat(document.getElementById('rCycle').value)||14;
   const frac=Math.max(0,(30-c)/30);
@@ -877,12 +1030,9 @@ function updateLiDailyDisplay(daily){
   daily=parseFloat(daily)||30;
   const slots=parseFloat(document.getElementById('rLiSlots').value)||1;
   const monthly=Math.round(slots*daily*22);
-  const dc=document.getElementById('liDailyCalc');
-  const lc=document.getElementById('liMonthlyCalc');
-  const ll=document.getElementById('lblLiDaily');
-  if(dc) dc.textContent=daily;
-  if(lc) lc.textContent=monthly.toLocaleString();
-  if(ll) ll.textContent=daily;
+  const dc=document.getElementById('liDailyCalc'); if(dc) dc.textContent=daily;
+  const lc=document.getElementById('liMonthlyCalc'); if(lc) lc.textContent=monthly.toLocaleString();
+  const ll=document.getElementById('lblLiDaily'); if(ll) ll.textContent=daily;
 }
 function toggleLI(){
   liEnabled=document.getElementById('liToggle').checked;
@@ -891,11 +1041,10 @@ function toggleLI(){
   if(liEnabled){
     const emailMeet=parseFloat(document.getElementById('rMeet').value)||30;
     const liMeet=Math.min(80,(emailMeet+10));
-    document.getElementById('rLiMeet').value=liMeet;
-    document.getElementById('ljrate3').value=liMeet;
-    updateTrack(document.getElementById('rLiMeet'));
+    const _rlm2=document.getElementById('rLiMeet'); if(_rlm2){_rlm2.value=liMeet;updateTrack(_rlm2);}
+    const _jr32=document.getElementById('ljrate3'); if(_jr32)_jr32.value=liMeet;
   }
-  if(liEnabled) updateLiDailyDisplay(document.getElementById('rLiDaily').value);
+  if(liEnabled){ const sl=document.getElementById('s1LiSlots'); if(sl) sl.textContent=s1LiSlots; const ref=document.getElementById('liLeadsTotalRef'); const tot=parseFloat(document.getElementById('iLeads').value)||0; if(ref) ref.textContent=tot.toLocaleString(); const liL=document.getElementById('iLiLeads'); if(liL&&!liL.dataset.set){liL.value=Math.round(tot*0.6);liL.dataset.set='1';syncLiLeadCount();} }
   calcJourney();
 }
 
@@ -918,8 +1067,8 @@ function syncLiMeet(){
   if(!liEnabled) return;
   const emailMeet=parseFloat(document.getElementById('rMeet').value)||30;
   const liMeet=Math.min(80,+(emailMeet+10).toFixed(1));
-  document.getElementById('rLiMeet').value=liMeet;
-  document.getElementById('ljrate3').value=liMeet;
+  const _rlm=document.getElementById('rLiMeet'); if(_rlm)_rlm.value=liMeet;
+  const _jr3=document.getElementById('ljrate3'); if(_jr3)_jr3.value=liMeet;
   updateTrack(document.getElementById('rLiMeet'));
 }
 
@@ -976,25 +1125,28 @@ function calcJourney(){
   [['jc2',replies>0],['jc3',meets>0],['jc4',deals>0]].forEach(([id,active])=>{
     document.getElementById(id).classList.toggle('filled',active);
   });
-  // LinkedIn
+  // LinkedIn — subset of email leads, boosts meeting rate
   if(liEnabled){
-    const slots=parseFloat(document.getElementById('rLiSlots').value)||1;
-    const daily=parseFloat(document.getElementById('rLiDaily').value)||20;
-    const liAr=parseFloat(document.getElementById('rLiAccept').value)/100;
-    const liMr=parseFloat(document.getElementById('rLiMeet').value)/100;
-    const liRequests=Math.round(slots*daily*22);
-    const liAccepted=liRequests*liAr;
-    const liMeets=liAccepted*liMr;
-    const liDeals=liMeets*cr;
-    document.getElementById('ljv1').textContent=liRequests.toLocaleString();
-    document.getElementById('ljv2').textContent=Math.round(liAccepted).toLocaleString();
-    document.getElementById('ljv3').textContent=Math.round(liMeets).toLocaleString();
-    document.getElementById('ljv4').textContent=liDeals.toFixed(1);
-    document.getElementById('ljWinRef').textContent=(cr*100).toFixed(1);
-    [['ljc2',liAccepted>0],['ljc3',liMeets>0],['ljc4',liDeals>0]].forEach(([id,active])=>{
-      document.getElementById(id).classList.toggle('filled',active);
+    const slots=s1LiSlots||parseFloat(document.getElementById('rLiSlots').value)||1;
+    const liPctEl=document.getElementById('iLiLeads'); const liPct=liPctEl?Math.min(1,(parseFloat(liPctEl.value)||0)/(parseFloat(document.getElementById('iLeads').value)||1)):parseFloat(document.getElementById('rLiPct').value)/100;
+    const liLeads=Math.round(leads*liPct);
+    const liMrEl=document.getElementById('ljrate_meet'); const liMr=(liMrEl?parseFloat(liMrEl.value):parseFloat(document.getElementById('rLiMeet').value)||20)/100;
+    // LI-touched leads: replies already counted in email, but meeting rate is boosted
+    const liMeetBoost=(liMr-mr); // extra meeting rate from LI (LI meet rate - email meet rate)
+    const liExtraMeets=Math.max(0,leads*liPct*rr*liMeetBoost); // extra meetings from LI boost
+    const liDeals=liExtraMeets*cr;
+    document.getElementById('ljv1').textContent=liLeads.toLocaleString();
+    document.getElementById('ljv2').textContent=Math.round(liExtraMeets).toLocaleString();
+    if(document.getElementById('liMeetBoostNote'))
+      document.getElementById('liMeetBoostNote').textContent=
+        'LI lifts meeting rate from '+Math.round(mr*100)+'% to '+Math.round(liMr*100)+'% for '+liLeads.toLocaleString()+' leads (+'+Math.max(0,Math.round((liMr-mr)*100))+'pp)';
+    const liMeets2=leads*liPct*rr*liMr; // total meetings from LI-touched leads
+    if(document.getElementById('ljv3')) document.getElementById('ljv3').textContent=Math.round(liMeets2).toLocaleString();
+    if(document.getElementById('ljv4')) document.getElementById('ljv4').textContent=liDeals.toFixed(1);
+    if(document.getElementById('ljWinRef')) document.getElementById('ljWinRef').textContent=(cr*100).toFixed(1);
+    [['ljc2',liExtraMeets>0],['ljc3',liMeets2>0],['ljc4',liDeals>0]].forEach(([id,active])=>{
+      const el=document.getElementById(id); if(el) el.classList.toggle('filled',active);
     });
-    // update cost note
     const liCost=slots*69;
     document.getElementById('liCostNote').innerHTML=slots+' slot'+(slots>1?'s':'')+' × $69 = <strong>$'+liCost+'/mo</strong> added to plan cost';
   }
@@ -1034,40 +1186,46 @@ function calc(){
   const dv=parseFloat(document.getElementById('iDeal').value)||0;
   const total=Math.round(leads*seq);
   const replies=leads*rr, meets=replies*mr, deals=meets*cr;
-  // LinkedIn
-  let liCost=0, liMeets=0, liDeals=0, liRequests=0;
+  // LinkedIn — improves meeting rate for a subset of email leads
+  let liCost=0, liExtraMeets=0, liDeals=0, liLeadCount=0;
   if(liEnabled){
-    const slots=parseFloat(document.getElementById('rLiSlots').value)||1;
-    const daily=parseFloat(document.getElementById('rLiDaily').value)||20;
-    const liAr=parseFloat(document.getElementById('rLiAccept').value)/100;
-    const liMr=parseFloat(document.getElementById('rLiMeet').value)/100;
+    const slots=s1LiSlots||parseFloat(document.getElementById('rLiSlots').value)||1;
+    const liPctEl=document.getElementById('iLiLeads'); const liPct=liPctEl?Math.min(1,(parseFloat(liPctEl.value)||0)/(parseFloat(document.getElementById('iLeads').value)||1)):parseFloat(document.getElementById('rLiPct').value)/100;
+    const liMrEl=document.getElementById('ljrate_meet'); const liMr=(liMrEl?parseFloat(liMrEl.value):parseFloat(document.getElementById('rLiMeet').value)||20)/100;
     liCost=slots*69;
-    liRequests=Math.round(slots*daily*22);
-    const liAccepted=liRequests*liAr;
-    liMeets=liAccepted*liMr;
-    liDeals=liMeets*cr;
+    liLeadCount=Math.round(leads*liPct);
+    // Extra meetings = LI-touched leads × reply rate × (LI meet rate - email meet rate)
+    liExtraMeets=Math.max(0,leads*liPct*rr*(liMr-mr));
+    liDeals=liExtraMeets*cr;
   }
-  const totalMeets=meets+liMeets;
+  const newLeads=parseFloat(document.getElementById('iNewLeads').value)||leads;
+  const totalMeets=meets+liExtraMeets;
   // Closing cycle adjustment: meetings booked in last N days can't close this month
   // Closeable fraction = (30 - cycle) / 30, floored at 0
   const cycle=parseFloat(document.getElementById('rCycle').value)||14;
   const closeableFraction=Math.max(0,(30-cycle)/30);
   // Apply to deals (meetings × win rate × closeable fraction)
   const adjDeals=deals*closeableFraction;
-  const adjLiDeals=liDeals*closeableFraction;
+  const adjLiDeals=liDeals*closeableFraction; // liDeals = extra meetings from LI × win rate
   const totalDeals=adjDeals+adjLiDeals;
   const rev=totalDeals*dv;
   // raw (unadjusted) for display context
-  const rawTotalDeals=(meets+liMeets)*(parseFloat(document.getElementById('rClose').value)/100);
+  const rawTotalDeals=(meets+liExtraMeets)*(parseFloat(document.getElementById('rClose').value)/100);
   const mbNeeded=Math.ceil(total/(22*lim));
+  // Plan selection: credits driven by newLeads, recipients by total leads
+  // Pick plan that satisfies BOTH constraints
   let pi=0;
-  for(let i=0;i<PLANS.length;i++){if(leads<=PLANS[i].rcpt){pi=i;break;}pi=PLANS.length-1;}
+  for(let i=0;i<PLANS.length;i++){
+    const p=PLANS[i];
+    if(leads<=p.rcpt && newLeads<=p.credits){ pi=i; break; }
+    pi=PLANS.length-1;
+  }
   planIdx=pi;
   const planCost=getPlanCost()+liCost;
   const roi=planCost>0?rev/planCost:0;
   const cpd=totalDeals>0?planCost/totalDeals:null;
   const cpm=totalMeets>0?planCost/totalMeets:null;
-  R={leads,seq,lim,total,replies,meets,deals:adjDeals,liMeets,liDeals:adjLiDeals,liRequests,liCost,
+  R={leads,newLeads,seq,lim,total,replies,meets,deals:adjDeals,liExtraMeets,liDeals:adjLiDeals,liLeadCount,liCost,
      totalMeets,totalDeals,rawTotalDeals,rev,roi,cpd,cpm,planCost,dv,mbNeeded,teamSize,liEnabled,cycle,closeableFraction};
   return R;
 }
@@ -1119,17 +1277,18 @@ function goReveal(){
     animCount(document.getElementById('bsRevNum'),r.rev,1050);
     const cycleAdj=r.closeableFraction<1?' ('+Math.round(r.closeableFraction*100)+'% closeable this month)':'';
     const dealDesc=r.liEnabled
-      ? `${r.deals.toFixed(1)} email + ${r.liDeals.toFixed(1)} LI = ${r.totalDeals.toFixed(1)} deals${cycleAdj} × ${fm(r.dv)}`
+      ? `${r.deals.toFixed(1)} email + ${r.liDeals.toFixed(1)} LI-boosted = ${r.totalDeals.toFixed(1)} total deals${cycleAdj} × ${fm(r.dv)}`
       : `${r.totalDeals.toFixed(1)} deals${cycleAdj} × ${fm(r.dv)} avg deal value`;
     document.getElementById('bsSub').textContent=dealDesc;
     // funnel boxes — show combined
-    document.getElementById('ff1').textContent=Math.round(r.leads).toLocaleString()+(r.liEnabled?' + '+r.liRequests.toLocaleString()+' LI':'');
+    document.getElementById('ff1').textContent=Math.round(r.leads).toLocaleString()+(r.liEnabled?' (+'+r.liLeadCount.toLocaleString()+' also on LI)':'');
     document.getElementById('ff2').textContent=Math.round(r.replies).toLocaleString()+(r.liEnabled?' + LI':'');
     document.getElementById('ffr2').textContent=document.getElementById('rReply').value+'% email reply rate';
     document.getElementById('ff3').textContent=Math.round(r.totalMeets).toLocaleString();
     document.getElementById('ffr3').textContent=r.liEnabled?'email + LinkedIn meetings':'of replies';
     document.getElementById('ff4').textContent=r.totalDeals.toFixed(1);
     document.getElementById('ffr4').textContent=document.getElementById('rClose').value+'% win rate';
+    if(advRoiUnlocked) updateAdvRoi();
 
   },80);
 }
@@ -1248,23 +1407,112 @@ function updateRoiBlock(){
   const baseCost=getEffectivePlanCost();
   const liCostS3=getEffectiveLiaCost();
   const planCost=baseCost+liCostS3;
-  const rev=R.rev;
-  const mx=Math.max(rev,planCost,1);
-  const roi=planCost>0?rev/planCost:0;
-  const net=Math.max(0,rev-planCost);
-  document.getElementById('rbRev').style.width=Math.min(100,rev/mx*100)+'%';
-  document.getElementById('rbCost').style.width=Math.min(100,planCost/mx*100)+'%';
+
+  // Revenue recalculated per billing period using closing cycle
+  // periodDays: how many days the billing period covers
+  const cycle=R.cycle||14;
+  const dv=R.dv||0;
+  const billingMonths=billing==='annual'?12:billing==='quarterly'?3:1;
+  const periodDays=billingMonths*30;
+  // fraction of meetings that can close within this billing period
+  const periodFrac=Math.max(0,Math.min(1,(periodDays-cycle)/periodDays));
+  // recover raw (unadjusted) meetings from R — R.totalMeets already has cycle baked in
+  // R.closeableFraction is the monthly fraction used in calc()
+  const monthlyFrac=R.closeableFraction||1;
+  const rawMeets=monthlyFrac>0?R.totalMeets/monthlyFrac:R.totalMeets;
+  const winRate=rawMeets>0?(R.totalDeals/monthlyFrac)/rawMeets:0;
+  // deals closeable in the full billing period
+  const periodDeals=rawMeets*winRate*periodFrac;
+  const totalPeriodRev=periodDeals*dv;
+  const totalPeriodCost=planCost*billingMonths;
+  const roi=totalPeriodCost>0?totalPeriodRev/totalPeriodCost:0;
+  const net=Math.max(0,totalPeriodRev-totalPeriodCost);
+
+  const mx=Math.max(totalPeriodRev,totalPeriodCost,1);
+  document.getElementById('rbRev').style.width=Math.min(100,totalPeriodRev/mx*100)+'%';
+  document.getElementById('rbCost').style.width=Math.min(100,totalPeriodCost/mx*100)+'%';
   document.getElementById('rbNet').style.width=Math.min(100,net/mx*100)+'%';
   lotteryScroll(document.getElementById('roiHlNum'), roi, v=>v>=1?v.toFixed(1)+'×':'<1×');
-  document.getElementById('rbRevAmt').textContent=fm(rev);
-  document.getElementById('rbCostAmt').textContent=fm(planCost);
-  document.getElementById('rbNetAmt').textContent=fm(net);
+
+  // Show period totals on the bars
+  const pLabel=billing==='annual'?' /yr':billing==='quarterly'?' /qtr':'';
+  document.getElementById('rbRevAmt').textContent=fm(totalPeriodRev)+pLabel;
+  document.getElementById('rbCostAmt').textContent=fm(totalPeriodCost)+pLabel;
+  document.getElementById('rbNetAmt').textContent=fm(net)+pLabel;
+
   const cpm=R.totalMeets>0?planCost/R.totalMeets:null;
   document.getElementById('s3Cpm').textContent=cpm?fm(cpm):'—';
   const cpdEl=document.getElementById('s3Cpd');
-  if(cpdEl){ const cpd2=R.totalDeals>0?planCost/R.totalDeals:null; cpdEl.textContent=cpd2?fm(cpd2):'—'; }
+  if(cpdEl){ const cpd2=periodDeals>0?(totalPeriodCost/periodDeals):null; cpdEl.textContent=cpd2?fm(cpd2):'—'; }
+
+  // Sub-label: warn if cycle exceeds period
   const sub=document.getElementById('roiHlSub');
-  if(sub) sub.textContent=liCostS3>0?'plan + $'+liCostS3+'/mo LI':'for every $1 spent';
+  if(sub){
+    if(periodFrac===0){
+      sub.textContent='0 deals close — cycle ('+cycle+'d) exceeds billing period';
+      sub.style.color='var(--re)';
+    } else if(periodFrac<1){
+      sub.textContent=Math.round(periodFrac*100)+'% of meetings close in this period';
+      sub.style.color='var(--am)';
+    } else {
+      sub.textContent=liCostS3>0?'incl. $'+liCostS3+'/mo LI':'for every $1 spent';
+      sub.style.color='';
+    }
+  }
+
+  // Populate the ROI flip card breakdown
+  const bkEl=document.getElementById('roiBreakdownContent');
+  if(bkEl){
+    const planName=PLANS[planIdx].name;
+    const liNote=liCostS3>0?' + $'+liCostS3+'/mo LinkedIn':'';
+    const cycleNote=periodFrac<1?'<span style="color:rgba(255,170,44,0.9)">Your '+cycle+'-day closing cycle means only '+Math.round(periodFrac*100)+'% of meetings close within the billing period.</span>':'All meetings closeable within period.';
+    const revenueDrivers=[];
+    if(R.leads) revenueDrivers.push(Math.round(R.leads).toLocaleString()+' leads reached');
+    if(R.replies) revenueDrivers.push(Math.round(R.replies).toLocaleString()+' replies ('+Math.round((R.replies/R.leads)*100)+'% reply rate)');
+    if(R.totalMeets) revenueDrivers.push(Math.round(R.totalMeets).toLocaleString()+' meetings booked');
+    if(periodDeals) revenueDrivers.push(periodDeals.toFixed(1)+' deals close this '+billing+' period');
+    const liImpact=R.liExtraMeets>0?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);color:rgba(10,200,120,0.85)">LinkedIn adds ~'+Math.round(R.liExtraMeets)+' extra meetings → '+R.liDeals.toFixed(1)+' additional deals/mo.</div>':'';
+    bkEl.innerHTML=
+      '<div style="margin-bottom:10px">'+revenueDrivers.map(d=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:rgba(155,130,238,0.7)">→</span>'+d+'</div>').join('')+'</div>'
+      +'<div style="padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:10px">'+cycleNote+'</div>'
+      +'<div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
+      +'<span style="color:rgba(255,255,255,0.4)">'+planName+' plan'+liNote+'</span>'
+      +'<span style="color:rgba(155,130,238,0.9)">'+fm(totalPeriodCost)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
+      +'<span style="color:rgba(255,255,255,0.4)">Revenue this period</span>'
+      +'<span style="color:rgba(155,130,238,0.9)">'+fm(totalPeriodRev)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
+      +'<span style="color:rgba(255,255,255,0.4)">Net</span>'
+      +'<span style="color:rgba(52,211,153,0.9)">'+fm(net)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
+      +'</div>'
+      +liImpact;
+  }
+
+  // ROI discouraging trigger: compare this billing's ROI vs annual ROI
+  const discouragEl=document.getElementById('roiDiscourage');
+  if(discouragEl && billing!=='annual'){
+    // Calculate annual ROI for comparison
+    const annualFrac=Math.max(0,Math.min(1,(365-cycle)/365));
+    const annualDeals=rawMeets*winRate*annualFrac;
+    const annualRev=annualDeals*dv;
+    const annualCost=getEffectivePlanCost()*12+(liCostS3*12);
+    const annualRoi=annualCost>0?annualRev/annualCost:0;
+    if(roi<annualRoi*0.85 && roi>0){
+      const lost=fm(annualRev-totalPeriodRev);
+      const msgs={
+        monthly:"Monthly gives you "+roi.toFixed(1)+"× ROI. Annual would give ~"+annualRoi.toFixed(1)+"× — that's "+lost+" more in potential revenue over the same 12 months.",
+        quarterly:"At 3 months you're at "+roi.toFixed(1)+"× ROI. Annual compounds to ~"+annualRoi.toFixed(1)+"× — outreach needs time to warm up.",
+      };
+      discouragEl.textContent=msgs[billing]||'';
+      discouragEl.style.display='block';
+    } else {
+      discouragEl.style.display='none';
+    }
+  } else if(discouragEl){
+    discouragEl.style.display='none';
+  }
 }
 
 function swPlan(i,e){
@@ -1403,7 +1651,7 @@ async function generateAiInsight(r){
   txt.textContent='';
   txt.classList.add('loading');
   const liLine=r.liEnabled
-    ? `LinkedIn is also enabled: ${r.liRequests} connection requests/mo → ${Math.round(r.liMeets)} LI meetings → ${r.liDeals.toFixed(1)} LI deals.`
+    ? `LinkedIn is also enabled: ${r.liLeadCount} leads on LI → ${Math.round(r.liExtraMeets)} extra meetings → ${r.liDeals.toFixed(1)} extra deals.`
     : 'LinkedIn is not enabled.';
   const prompt=`You are a concise sales analyst. Based on these outreach numbers, write ONE sentence (max 30 words) of honest, specific, not salesy insight. Do not use generic praise. Be precise and a little dry.
 
@@ -1446,6 +1694,37 @@ function applyDiscount(){
 function toggleDiscountPanel(){
   document.getElementById('discountPanel').classList.toggle('show');
 }
+// ── ROI FLIP CARD — visible only after typing "snov" ─────────────────────
+let roiCardFlipped=false, roiFlipUnlocked=false;
+function flipRoiCard(){
+  if(!roiFlipUnlocked) return;
+  roiCardFlipped=!roiCardFlipped;
+  document.getElementById('roiFlipCard').style.transform=roiCardFlipped?'rotateY(180deg)':'rotateY(0deg)';
+}
+
+// "snov" keyword listener
+(function(){
+  let snovBuf='';
+  document.addEventListener('keydown',e=>{
+    if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+    snovBuf=(snovBuf+e.key).toLowerCase().slice(-4);
+    if(snovBuf==='snov' && !roiFlipUnlocked){
+      roiFlipUnlocked=true;
+      const card=document.getElementById('roiFlipCard');
+      card.style.cursor='pointer';
+      card.onclick=flipRoiCard;
+      const hint=document.getElementById('roiFlipHint');
+      if(hint) hint.style.display='block';
+      // subtle flash to signal unlock
+      card.style.transition='transform .7s cubic-bezier(.35,0,.2,1), box-shadow .3s';
+      card.style.boxShadow='0 0 0 2px rgba(155,130,238,0.5)';
+      setTimeout(()=>{ card.style.boxShadow=''; },800);
+      snovBuf='';
+    }
+  });
+})();
+
+// ── DISCOUNT PANEL — activated by typing "magic" ───────────────────────────
 // Trigger: URL param ?snovadmin=1 OR typing "magic" (any case) anywhere
 (function(){
   if(new URLSearchParams(window.location.search).get('snovadmin')==='1'){
@@ -1473,9 +1752,18 @@ function confetti(){
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 document.querySelectorAll('input[type=range]').forEach(r=>updateTrack(r));
+syncNewLeads();
 calcJourney();
 // ensure LI section hidden on load
 document.getElementById('liSection').classList.remove('show');
 </script>
+<div id="roiDiscourage" style="display:none"></div>
+<div id="roiHlSub" style="display:none"></div>
+<div id="s3Cpd" style="display:none"></div>
+<div id="aiInsightWrap" style="display:none"><div id="aiInsightText"></div></div>
+<span id="lblLiDaily" style="display:none"></span>
+<span id="liDailyCalc" style="display:none"></span>
+<span id="liMonthlyCalc" style="display:none"></span>
+<input id="ljrate3" type="number" value="33" style="display:none"/>
 </body>
 </html>
