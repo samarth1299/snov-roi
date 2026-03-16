@@ -592,10 +592,10 @@ footer a:hover{color:var(--pu)}
   </div>
 
   <!-- hidden deal/cycle inputs still used by calc() -->
-  <input type="range" id="rDeal" min="100" max="100000" step="100" value="2000" style="display:none"/>
-  <input type="number" id="iDeal" value="2000" style="display:none"/>
+  <input type="range" id="rDeal" min="100" max="100000" step="100" value="3000" style="display:none"/>
+  <input type="number" id="iDeal" value="3000" style="display:none"/>
   <input type="range" id="rCycle" min="1" max="90" step="1" value="14" style="display:none"/>
-  <span id="lblDeal" style="display:none">$2k</span>
+  <span id="lblDeal" style="display:none">$3k</span>
   <span id="lblCycle" style="display:none">14</span>
   <div id="cycleNote" style="display:none"></div>
 
@@ -662,10 +662,10 @@ footer a:hover{color:var(--pu)}
         <div style="font-size:13px;font-weight:600;color:var(--tx);min-width:120px">Average deal value</div>
         <div style="display:flex;align-items:baseline;gap:4px;flex:1">
           <div style="font-size:20px;font-weight:700;color:var(--td)">$</div>
-          <input class="bnum-inp" type="number" id="iDeal2" value="2000" min="1" style="font-size:28px;width:120px" oninput="syncDeal2()"/>
+          <input class="bnum-inp" type="number" id="iDeal2" value="3000" min="1" style="font-size:28px;width:120px" oninput="syncDeal2()"/>
         </div>
-        <input type="range" id="rDeal2" min="100" max="100000" step="100" value="2000" style="flex:2;min-width:120px" oninput="syncDeal2Range()"/>
-        <div style="font-size:13px;font-weight:700;color:var(--pu);min-width:48px;text-align:right" id="lblDeal2">$2k</div>
+        <input type="range" id="rDeal2" min="100" max="100000" step="100" value="3000" style="flex:2;min-width:120px" oninput="syncDeal2Range()"/>
+        <div style="font-size:13px;font-weight:700;color:var(--pu);min-width:48px;text-align:right" id="lblDeal2">$3k</div>
       </div>
       <!-- Closing cycle -->
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
@@ -676,17 +676,7 @@ footer a:hover{color:var(--pu)}
         </div>
       </div>
       <div style="font-size:11px;color:var(--td);margin-top:8px" id="cycleNote2"></div>
-      <!-- Live updated advanced stats -->
-      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--b0);display:flex;gap:12px;flex-wrap:wrap">
-        <div style="flex:1;min-width:130px;background:var(--s2);border-radius:10px;padding:12px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--td);margin-bottom:6px">Adj. monthly revenue</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--tx)" id="advRevNum">—</div>
-        </div>
-        <div style="flex:1;min-width:130px;background:var(--pu-bg);border:1px solid var(--pu-border);border-radius:10px;padding:12px">
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--pu);margin-bottom:6px">Accurate ROI estimate</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--pu)" id="advRoiNum">—</div>
-        </div>
-      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--b0);font-size:12px;color:var(--tm)">↑ The possible revenue figure above updates live as you adjust these.</div>
     </div>
   </div>
 
@@ -959,7 +949,7 @@ function syncDeal2(){
   document.getElementById('lblDeal2').textContent='$'+fN(v);
   document.getElementById('iDeal').value=v;
   document.getElementById('rDeal').value=v;
-  updateAdvRoi();
+  updateAdvRoi(); updateStep2Revenue(); updateRoiBlock();
 }
 function syncDeal2Range(){
   const v=document.getElementById('rDeal2').value;
@@ -968,7 +958,7 @@ function syncDeal2Range(){
   document.getElementById('iDeal').value=v;
   document.getElementById('rDeal').value=v;
   updateTrack(document.getElementById('rDeal2'));
-  updateAdvRoi();
+  updateAdvRoi(); updateStep2Revenue(); updateRoiBlock();
 }
 function syncCycle2(){
   const v=document.getElementById('rCycle2').value;
@@ -977,7 +967,40 @@ function syncCycle2(){
   document.getElementById('lblCycle').textContent=v;
   updateTrack(document.getElementById('rCycle2'));
   updateCycleNote2();
-  updateAdvRoi();
+  updateAdvRoi(); updateStep2Revenue(); updateRoiBlock();
+}
+
+// Re-render Step 2 big number when AoV or cycle changes, with lottery scroll
+function updateStep2Revenue(){
+  const dv=parseFloat(document.getElementById('iDeal2').value)||3000;
+  const cycle=parseFloat(document.getElementById('rCycle2').value)||14;
+  const cr=parseFloat(document.getElementById('rClose').value)/100||0;
+  const mr=parseFloat(document.getElementById('rMeet').value)/100||0;
+  const rr=parseFloat(document.getElementById('rReply').value)/100||0;
+  // read leads live — don't depend on R being populated
+  const leads=parseFloat(document.getElementById('iLeads').value)||0;
+  if(!leads) return;
+  const rawMeets=leads*rr*mr;
+  const liMeets=R.liExtraMeets||0;
+  const frac=Math.max(0,(30-cycle)/30);
+  const monthlyDealsRaw=(rawMeets+liMeets)*cr*frac;
+  const monthlyRev=monthlyDealsRaw*dv;
+  // lottery scroll the big number
+  const el=document.getElementById('bsRevNum');
+  if(el){
+    el.style.opacity='0'; el.style.transform='translateY(28px)'; el.style.transition='none';
+    setTimeout(()=>{
+      el.textContent=fN(monthlyRev);
+      el.style.transition='opacity .35s ease,transform .38s cubic-bezier(.22,1,.36,1)';
+      el.style.opacity='1'; el.style.transform='translateY(0)';
+    },80);
+  }
+  const sub=document.getElementById('bsSub');
+  if(sub){
+    const dealsDisplay=monthlyDealsRaw>=0.01?monthlyDealsRaw.toFixed(1):'<0.1';
+    const cycleAdj=frac<1?' · '+Math.round(frac*100)+'% closeable/mo':'';
+    sub.textContent=dealsDisplay+' deals/mo'+cycleAdj+' · $'+fN(dv)+' avg';
+  }
 }
 function updateCycleNote2(){
   const c=parseFloat(document.getElementById('rCycle2').value)||14;
@@ -991,17 +1014,17 @@ function updateCycleNote2(){
 }
 function updateAdvRoi(){
   if(!advRoiUnlocked||!R.totalMeets) return;
+  const billingMonths=billing==='annual'?12:billing==='quarterly'?3:1;
   const cycle=parseFloat(document.getElementById('rCycle2').value)||14;
   const dv=parseFloat(document.getElementById('iDeal2').value)||2000;
   const frac=Math.max(0,(30-cycle)/30);
   const winRate=R.totalMeets>0?R.totalDeals/R.totalMeets:0;
   const rawMeets=R.closeableFraction>0?R.totalMeets/R.closeableFraction:R.totalMeets;
-  const adjDeals=rawMeets*winRate*frac;
-  const adjRev=adjDeals*dv;
+  const adjDeals=roundDeals(rawMeets*winRate*frac*billingMonths); // accumulate over period then round
+  const adjRev=(adjDeals*dv)/billingMonths; // back to monthly for display
   const planCost=R.planCost||1;
   const roi=planCost>0?adjRev/planCost:0;
-  document.getElementById('advRevNum').textContent=fm(adjRev);
-  document.getElementById('advRoiNum').textContent=roi>=1?roi.toFixed(1)+'×':'<1×';
+  updateStep2Revenue(); // feeds into main Step 2 big stat
 }
 function syncNewLeads(){
   const total=parseFloat(document.getElementById('iLeads').value)||0;
@@ -1175,6 +1198,10 @@ function checkMbLimit(){
   }
 }
 
+
+// Round deals: only count a deal if decimal part >= 0.75, otherwise floor
+function roundDeals(n){ return Math.floor(n)+(((n%1)>=0.75)?1:0); }
+
 // ── CALC ──────────────────────────────────────────────────────────────────
 function calc(){
   const leads=parseFloat(document.getElementById('iLeads').value)||0;
@@ -1205,8 +1232,8 @@ function calc(){
   const cycle=parseFloat(document.getElementById('rCycle').value)||14;
   const closeableFraction=Math.max(0,(30-cycle)/30);
   // Apply to deals (meetings × win rate × closeable fraction)
-  const adjDeals=deals*closeableFraction;
-  const adjLiDeals=liDeals*closeableFraction; // liDeals = extra meetings from LI × win rate
+  const adjDeals=deals*closeableFraction;  // keep fractional — round only at display/revenue layer
+  const adjLiDeals=liDeals*closeableFraction;
   const totalDeals=adjDeals+adjLiDeals;
   const rev=totalDeals*dv;
   // raw (unadjusted) for display context
@@ -1408,21 +1435,45 @@ function updateRoiBlock(){
   const liCostS3=getEffectiveLiaCost();
   const planCost=baseCost+liCostS3;
 
-  const cycle=R.cycle||14;
-  const dv=R.dv||0;
+  const cycle=parseFloat(document.getElementById('rCycle').value)||R.cycle||14;
+  const dv=parseFloat(document.getElementById('iDeal').value)||R.dv||0;
   const billingMonths=billing==='annual'?12:billing==='quarterly'?3:1;
 
   // Correct model: each month runs independently.
   // R.totalDeals is already monthly deals after the closing-cycle adjustment.
   // Over N months you do N months of outreach, so N x monthly deals.
-  const monthlyDeals=R.totalDeals||0;
-  const monthlyRev=monthlyDeals*dv;
-  const periodDeals=monthlyDeals*billingMonths;
-  const totalPeriodRev=monthlyRev*billingMonths;
-  const totalPeriodCost=planCost*billingMonths;
+  // Month-by-month accumulation: each month's meetings have a different
+  // closing window depending on how much of the period remains after that month.
+  // Month M (1-indexed): daysRemaining = (billingMonths - M) * 30
+  // closeableFrac(M) = min(1, max(0, daysRemaining + 30 - cycle) / 30)
+  // Raw (pre-cycle) monthly meetings and win rate — read directly from R's funnel
+  // R.totalMeets already has closeableFraction baked in for email-only meets.
+  // We need raw meetings = what the funnel generates before cycle cuts.
+  // R.replies * meetRate = raw email meets; meetRate = R.meets_raw / R.replies
+  // Simplest: read close rate directly from the slider, compute raw meets from R.replies
+  const closeRateRaw = parseFloat(document.getElementById('rClose').value)/100 || 0;
+  const meetRateRaw  = parseFloat(document.getElementById('rMeet').value)/100 || 0;
+  const replyRateRaw = parseFloat(document.getElementById('rReply').value)/100 || 0;
+  const rawMonthlyEmailMeets = (R.leads||0) * replyRateRaw * meetRateRaw;
+  // LI extra meets (also raw, before cycle)
+  const liPctRaw = R.liLeadCount>0 ? R.liLeadCount/(R.leads||1) : 0;
+  const liMrRaw  = parseFloat(document.getElementById('rLiMeet')?document.getElementById('rLiMeet').value:meetRateRaw*100)/100||0;
+  const rawMonthlyLiExtraMeets = Math.max(0,(R.leads||0)*liPctRaw*replyRateRaw*(liMrRaw-meetRateRaw));
 
-  // closeableFraction for sub-label context only
-  const periodFrac=R.closeableFraction||1;
+  let periodDealsRaw = 0;
+  for(let m=1; m<=billingMonths; m++){
+    const daysLeft = (billingMonths - m) * 30;
+    const frac = Math.min(1, Math.max(0, (daysLeft + 30 - cycle) / 30));
+    periodDealsRaw += (rawMonthlyEmailMeets + rawMonthlyLiExtraMeets) * closeRateRaw * frac;
+  }
+  const periodDeals = roundDeals(periodDealsRaw);
+  const totalPeriodRev = periodDeals * dv;
+  const totalPeriodCost = planCost * billingMonths;
+  const monthlyDeals = R.totalDeals||0;
+  const monthlyRev = monthlyDeals * dv;
+
+  // periodFrac for sub-label: use month 1 fraction as the "this month" indicator
+  const periodFrac = Math.min(1, Math.max(0, (30 - cycle) / 30));
   const roi=totalPeriodCost>0?totalPeriodRev/totalPeriodCost:0;
   const net=Math.max(0,totalPeriodRev-totalPeriodCost);
 
@@ -1464,44 +1515,48 @@ function updateRoiBlock(){
     const planName=PLANS[planIdx].name;
     const liNote=liCostS3>0?' + $'+liCostS3+'/mo LinkedIn':'';
     const cycleNote=periodFrac<1?'<span style="color:rgba(255,170,44,0.9)">Your '+cycle+'-day closing cycle means only '+Math.round(periodFrac*100)+'% of meetings close within the billing period.</span>':'All meetings closeable within period.';
+    const periodLabel2=billing==='annual'?'/ yr':billing==='quarterly'?'/ qtr':'/ mo';
     const revenueDrivers=[];
-    if(R.leads) revenueDrivers.push(Math.round(R.leads).toLocaleString()+' leads reached');
-    if(R.replies) revenueDrivers.push(Math.round(R.replies).toLocaleString()+' replies ('+Math.round((R.replies/R.leads)*100)+'% reply rate)');
-    if(R.totalMeets) revenueDrivers.push(Math.round(R.totalMeets).toLocaleString()+' meetings booked');
-    if(periodDeals) revenueDrivers.push(periodDeals.toFixed(1)+' deals close this '+billing+' period');
-    const liImpact=R.liExtraMeets>0?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);color:rgba(10,200,120,0.85)">LinkedIn adds ~'+Math.round(R.liExtraMeets)+' extra meetings → '+R.liDeals.toFixed(1)+' additional deals/mo.</div>':'';
+    if(R.leads) revenueDrivers.push(Math.round(R.leads*billingMonths).toLocaleString()+' leads reached '+periodLabel2);
+    if(R.replies) revenueDrivers.push(Math.round(R.replies*billingMonths).toLocaleString()+' replies ('+Math.round((R.replies/R.leads)*100)+'% reply rate)');
+    if(R.totalMeets) revenueDrivers.push(Math.round(R.totalMeets*billingMonths).toLocaleString()+' meetings booked '+periodLabel2);
+    if(periodDeals) revenueDrivers.push(periodDeals.toFixed(1)+' deals closed this '+billing+' period');
+    const liImpact=R.liExtraMeets>0?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);color:rgba(10,200,120,0.85)">LinkedIn adds ~'+Math.round(R.liExtraMeets*billingMonths)+' extra meetings '+periodLabel2+' → '+(R.liDeals*billingMonths).toFixed(1)+' additional deals.</div>':'';
+    const pSuffix=billing==='annual'?' /yr':billing==='quarterly'?' /qtr':'';
+    const cycleTag=periodFrac<1
+      ?'<span style="margin-left:6px;font-size:9px;background:rgba(255,170,44,0.2);color:rgba(255,170,44,0.9);border-radius:4px;padding:1px 5px;vertical-align:middle">'+cycle+'d cycle</span>'
+      :'';
+    const trow=(label,val,highlight)=>
+      '<tr>'
+      +'<td style="padding:5px 0 5px 0;font-size:11px;color:rgba(255,255,255,0.38);width:90px;vertical-align:top">'+label+'</td>'
+      +'<td style="padding:5px 0 5px 8px;font-family:\'JetBrains Mono\',monospace;font-size:13px;font-weight:600;color:'+(highlight||'#fff')+';text-align:right">'+val+pSuffix+'</td>'
+      +'</tr>';
+    const divider='<tr><td colspan="2" style="padding:3px 0"><div style="border-top:1px solid rgba(255,255,255,0.07)"></div></td></tr>';
     bkEl.innerHTML=
-      '<div style="margin-bottom:10px">'+revenueDrivers.map(d=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="color:rgba(155,130,238,0.7)">→</span>'+d+'</div>').join('')+'</div>'
-      +'<div style="padding:10px;background:rgba(255,255,255,0.05);border-radius:8px;margin-bottom:10px">'+cycleNote+'</div>'
-      +'<div style="display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)">'
-      +'<span style="color:rgba(255,255,255,0.4)">'+planName+' plan'+liNote+'</span>'
-      +'<span style="color:rgba(155,130,238,0.9)">'+fm(totalPeriodCost)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
-      +'</div>'
-      +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
-      +'<span style="color:rgba(255,255,255,0.4)">Revenue this period</span>'
-      +'<span style="color:rgba(155,130,238,0.9)">'+fm(totalPeriodRev)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
-      +'</div>'
-      +'<div style="display:flex;justify-content:space-between;margin-top:6px">'
-      +'<span style="color:rgba(255,255,255,0.4)">Net</span>'
-      +'<span style="color:rgba(52,211,153,0.9)">'+fm(net)+(billing!=="monthly"?" "+pLabel:"/mo")+'</span>'
-      +'</div>'
-      +liImpact;
+      '<table style="width:100%;border-collapse:collapse">'
+      +trow('Leads',Math.round((R.leads||0)*billingMonths).toLocaleString())
+      +trow('Replies',Math.round((R.replies||0)*billingMonths).toLocaleString())
+      +trow('Meetings',Math.round((R.totalMeets||0)*billingMonths).toLocaleString())
+      +trow('Deals won',periodDeals+cycleTag)
+      +divider
+      +trow('Plan cost',fm(totalPeriodCost),'rgba(155,130,238,0.8)')
+      +trow('Revenue',fm(totalPeriodRev),'rgba(155,130,238,0.8)')
+      +trow('Net',fm(net),'rgba(52,211,153,0.9)')
+      +'</table>'
+      +(liImpact||'');
   }
 
-  // ROI discouraging trigger: compare this billing's ROI vs annual ROI
+    // ROI discouraging trigger — compare net value of this period vs annual
   const discouragEl=document.getElementById('roiDiscourage');
   if(discouragEl && billing!=='annual'){
-    // Calculate annual ROI for comparison
-    const annualFrac=Math.max(0,Math.min(1,(365-cycle)/365));
-    const annualDeals=rawMeets*winRate*annualFrac;
-    const annualRev=annualDeals*dv;
-    const annualCost=getEffectivePlanCost()*12+(liCostS3*12);
-    const annualRoi=annualCost>0?annualRev/annualCost:0;
-    if(roi<annualRoi*0.85 && roi>0){
-      const lost=fm(annualRev-totalPeriodRev);
+    const annualMonthlyCost=prices(PLANS[planIdx]).annual+liCostS3;
+    const annualNet=Math.max(0,monthlyRev*12-annualMonthlyCost*12);
+    const thisNetAnnualised=net*(12/billingMonths);
+    if(annualNet>thisNetAnnualised*1.15 && net>0){
+      const extra=fm(annualNet-thisNetAnnualised);
       const msgs={
-        monthly:"Monthly gives you "+roi.toFixed(1)+"× ROI. Annual would give ~"+annualRoi.toFixed(1)+"× — that's "+lost+" more in potential revenue over the same 12 months.",
-        quarterly:"At 3 months you're at "+roi.toFixed(1)+"× ROI. Annual compounds to ~"+annualRoi.toFixed(1)+"× — outreach needs time to warm up.",
+        monthly:"Switching to annual adds "+extra+" more net value over 12 months — same outreach, lower per-month cost.",
+        quarterly:"Annual would add "+extra+" more net over a year versus renewing quarterly. The discount compounds.",
       };
       discouragEl.textContent=msgs[billing]||'';
       discouragEl.style.display='block';
@@ -1511,8 +1566,8 @@ function updateRoiBlock(){
   } else if(discouragEl){
     discouragEl.style.display='none';
   }
-}
 
+}
 function swPlan(i,e){
   if(e)e.stopPropagation();
   planIdx=i;
